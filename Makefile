@@ -26,10 +26,12 @@ clean:
 	rm -f *.o kernel.elf
 
 boot.efi:
-	@echo "Build boot.efi with gnu-efi or EDK2 (see README.md)"
+	@echo "Building BOOTAA64.EFI (scripts/build_boot.sh)"
+	@bash scripts/build_boot.sh
 
-image.img:
-	@echo "Create FAT image and copy EFI bootloader + kernel (see README.md)"
+image.img: boot.efi kernel.elf
+	@echo "Creating FAT image (scripts/make_image.sh)"
+	@bash scripts/make_image.sh
 
 run: kernel.elf
 	@if [ -z "$(QEMU_EFI)" ]; then echo "Set QEMU_EFI to your AArch64 UEFI firmware (AAVMF or QEMU_EFI.fd)"; exit 1; fi

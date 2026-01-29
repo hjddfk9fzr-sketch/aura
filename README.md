@@ -21,16 +21,18 @@ Minimal experimental AArch64 hobby OS (UEFI + kernel).
    - Создать UEFI-приложение (пример, требует `gnuefi`):
      `ld -Bsymbolic -Ttext 0 -shared -o boot.so boot.o -lgnuefi` и затем `objcopy -O binary boot.so boot.efi` (варианты зависят от вашей средой).
 
-3. Создайте FAT-образ с `EFI/BOOT/BOOTAA64.EFI` и `kernel.elf` рядом:
-   - `mkdir -p mnt/EFI/BOOT`
-   - `cp boot.efi mnt/EFI/BOOT/BOOTAA64.EFI`
-   - `cp kernel.elf mnt/`
-   - `mkfs.vfat -n AURABOOT image.img` и `mcopy -i image.img mnt/* ::` (варианты зависят от `mtools`)
+3. Создайте FAT-образ с `EFI/BOOT/BOOTAA64.EFI` и `kernel.elf` рядом — есть скрипт для автоматизации:
+   - `make boot.efi` — попытается собрать `BOOTAA64.EFI` (скрипт `scripts/build_boot.sh`).
+   - `make image.img` — создаёт FAT образ `build/image.img` и копирует туда `BOOTAA64.EFI` и `kernel.elf` (скрипт `scripts/make_image.sh`).
 
 ## Запуск в QEMU (пример)
 - Установите QEMU и EDK2 AArch64 firmware (`QEMU_EFI.fd` / `AAVMF` for aarch64).
-- Запуск:
-  `qemu-system-aarch64 -M virt -cpu cortex-a57 -m 1024 -nographic -bios /path/to/QEMU_EFI.fd -drive file=image.img,format=raw,if=none,id=hd0 -device virtio-blk-device,drive=hd0`
+- Пример запуска (после создания `build/image.img`):
+  `QEMU_EFI=/path/to/QEMU_EFI.fd IMAGE=build/image.img make run`
+
+> Примечания:
+> - Скрипты пытаются использовать `aarch64-linux-gnu-gcc`/`aarch64-elf-gcc`, `objcopy`, `mkfs.vfat`, `mcopy` (mtools). Если их нет, скрипты напечатают инструкции, что установить.
+> - На macOS может потребоваться установить `mtools` и `dosfstools` через brew, либо выполнить создание образа вручную. См. дополнительно `scripts/*.sh`.
 
 ## Дальше
 - Проверить сборку `boot.efi` и образа для QEMU.
