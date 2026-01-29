@@ -1,18 +1,21 @@
 #include <stdint.h>
 
 static uint32_t* fb;
-static int width = 1024;
-static int height = 768;
+static uint32_t width;
+static uint32_t height;
+static uint32_t pitch;
 
-void fb_init() {
-    // временно хардкод (UEFI GOP подключим дальше)
-    fb = (uint32_t*)0x40000000;
+void fb_init(uint64_t addr, uint32_t w, uint32_t h, uint32_t p) {
+    fb = (uint32_t*)(uintptr_t)addr;
+    width = w;
+    height = h;
+    pitch = p;
 }
 
 void fb_draw_rect(int x, int y, int w, int h, uint32_t color) {
     for (int iy = y; iy < y + h; iy++) {
         for (int ix = x; ix < x + w; ix++) {
-            fb[iy * width + ix] = color;
+            fb[iy * pitch + ix] = color;
         }
     }
 }

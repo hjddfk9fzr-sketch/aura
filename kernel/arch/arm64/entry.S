@@ -2,9 +2,12 @@
 .global _start
 
 _start:
-    // Setup stack
-    ldr x0, =stack_top
-    mov sp, x0
+    // Preserve bootinfo (in x0) and setup stack
+    mov x1, x0
+    ldr x2, =stack_top
+    mov sp, x2
+    // restore bootinfo into x0
+    mov x0, x1
 
     bl kernel_main
 
